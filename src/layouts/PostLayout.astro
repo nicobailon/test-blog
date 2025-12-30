@@ -50,7 +50,7 @@ const formatDate = (date: Date) => {
         { name: title }
       ]} />
       <br /><br />
-      <h1 style="font-size: 1.75rem; margin: 1em 0 0.5em;">{title}</h1>
+      <h1 style="font-size: calc(var(--font-size) * 1.5); font-weight: 400; margin: calc(var(--font-size) * var(--theme-line-height-base)) 0 calc(var(--font-size) * var(--theme-line-height-base) * 1.5);">{title}</h1>
       <Avatar src={AUTHOR?.avatar}>
         <div style="padding-left: 2ch;">
           <strong>{AUTHOR?.name || 'Anonymous'}</strong>
