@@ -50,6 +50,7 @@ const formatDate = (date: Date) => {
         { name: title }
       ]} />
       <br /><br />
+      <h1 style="font-size: 1.75rem; margin: 1em 0 0.5em;">{title}</h1>
       <Avatar src={AUTHOR?.avatar}>
         <div style="padding-left: 2ch;">
           <strong>{AUTHOR?.name || 'Anonymous'}</strong>
@@ -59,7 +60,7 @@ const formatDate = (date: Date) => {
       </Avatar>
       <br />
       <Divider type="double" />
-      <br /><br /><br /><br />
+      <br /><br />
 
       {heroImage && (
         <>
