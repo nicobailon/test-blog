@@ -14,17 +14,19 @@ interface Props {
 const { slug, title, pubDatetime, description, body } = Astro.props
 const readingTime = getReadingTime(body)
 ---
-<a
-  href={url(`/${slug}`)}
-  class="action-list-item"
->
-  <figure class="action-list-icon">⭢</figure>
-  <span class="action-list-text">{title}</span>
-</a>
-<div class="grid">
-  <div style="display: flex; align-items: center; gap: 0;">
-    <Datetime datetime={pubDatetime} />
-    <span style="margin-left: 1ch;">• {readingTime}</span>
+<article style="margin-bottom: 1.5em;">
+  <a
+    href={url(`/${slug}`)}
+    class="action-list-item"
+  >
+    <figure class="action-list-icon">⭢</figure>
+    <span class="action-list-text">{title}</span>
+  </a>
+  <div style="padding: 0.5em 0 0;">
+    <div style="display: flex; align-items: center; gap: 0;">
+      <Datetime datetime={pubDatetime} />
+      <span style="margin-left: 1ch;">• {readingTime}</span>
+    </div>
+    {description && <p style="margin-top: 0.25em;">{description}</p>}
   </div>
-  {description && <p style="margin-top: calc(var(--font-size) * var(--theme-line-height-base) * 0.5);">{description}</p>}
-</div>
+</article>
