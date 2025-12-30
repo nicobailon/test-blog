@@ -38,6 +38,7 @@ const recentPosts = nonFeaturedPosts.length > 0 ? nonFeaturedPosts.slice(0, 5) :
             pubDatetime={post.data.pubDatetime}
             description={post.data.description}
             body={post.body || ''}
+            heroImage={post.data.heroImage}
           />
         ))}
       </div>
@@ -54,6 +55,7 @@ const recentPosts = nonFeaturedPosts.length > 0 ? nonFeaturedPosts.slice(0, 5) :
         pubDatetime={post.data.pubDatetime}
         description={post.data.description}
         body={post.body || ''}
+        heroImage={post.data.heroImage}
       />
     ))}
     <a href={url('/posts')} class="action-list-item" style="margin-top: calc(var(--font-size) * var(--theme-line-height-base));">

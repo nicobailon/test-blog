@@ -40,6 +40,7 @@ const { tag, posts } = Astro.props
         description={post.data.description}
         tags={post.data.tags}
         body={post.body || ''}
+        heroImage={post.data.heroImage}
       />
     ))}
   </div>

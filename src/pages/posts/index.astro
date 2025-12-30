@@ -18,6 +18,7 @@ const sortedPosts = posts.sort((a, b) => b.data.pubDatetime.valueOf() - a.data.p
         pubDatetime={post.data.pubDatetime}
         description={post.data.description}
         body={post.body || ''}
+        heroImage={post.data.heroImage}
       />
     ))}
   </ul>

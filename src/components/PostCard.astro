@@ -9,24 +9,33 @@ interface Props {
   pubDatetime: Date
   description?: string
   body: string
+  heroImage?: string
 }
 
-const { slug, title, pubDatetime, description, body } = Astro.props
+const { slug, title, pubDatetime, description, body, heroImage } = Astro.props
 const readingTime = getReadingTime(body)
+const imageUrl = heroImage ? (heroImage.startsWith('/') ? url(heroImage) : heroImage) : null
 ---
-<article style="margin-bottom: 1.5em;">
-  <a
-    href={url(`/${slug}`)}
-    class="action-list-item"
-  >
-    <figure class="action-list-icon">⭢</figure>
-    <span class="action-list-text">{title}</span>
-  </a>
-  <div style="padding: 0.5em 0 0;">
-    <div style="display: flex; align-items: center; gap: 0;">
-      <Datetime datetime={pubDatetime} />
-      <span style="margin-left: 1ch;">• {readingTime}</span>
+<article style="margin-bottom: 1.5em; display: flex; gap: 2ch;">
+  {imageUrl && (
+    <a href={url(`/${slug}`)} style="flex-shrink: 0; display: block; width: 12ch; height: calc(var(--font-size) * var(--theme-line-height-base) * 6); background: var(--theme-border);">
+      <img src={imageUrl} alt={title} style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+    </a>
+  )}
+  <div style="flex: 1; min-width: 0;">
+    <a
+      href={url(`/${slug}`)}
+      class="action-list-item"
+    >
+      <figure class="action-list-icon">⭢</figure>
+      <span class="action-list-text">{title}</span>
+    </a>
+    <div style="padding: 0.5em 0 0;">
+      <div style="display: flex; align-items: center; gap: 0;">
+        <Datetime datetime={pubDatetime} />
+        <span style="margin-left: 1ch;">• {readingTime}</span>
+      </div>
+      {description && <p style="margin-top: 0.25em;">{description}</p>}
     </div>
-    {description && <p style="margin-top: 0.25em;">{description}</p>}
   </div>
 </article>
