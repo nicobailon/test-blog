@@ -1,0 +1,17 @@
+---
+interface Props {
+  title?: string
+}
+
+const { title } = Astro.props
+---
+<div class="card">
+  <header class="card-header">
+    <div class="card-header-left"></div>
+    {title && <h2 class="card-title">{title.toUpperCase()}</h2>}
+    <div class="card-header-right"></div>
+  </header>
+  <section class="card-body">
+    <slot />
+  </section>
+</div>

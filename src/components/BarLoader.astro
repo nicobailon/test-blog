@@ -1,0 +1,10 @@
+---
+interface Props {
+  progress?: number
+}
+
+const { progress = 0 } = Astro.props
+---
+<div class="bar-loader">
+  <div class="bar-loader-fill" style={`width: ${Math.min(progress, 100)}%`}></div>
+</div>

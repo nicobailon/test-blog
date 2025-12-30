@@ -1,0 +1,16 @@
+{
+  "name": "test-blog",
+  "title": "Test Blog",
+  "description": "Testing comments and reactions",
+  "site": "https://nicobailon.github.io/test-blog",
+  "language": "en",
+  "author": {
+    "name": "Nico"
+  },
+  "features": {
+    "rss": true,
+    "search": true,
+    "comments": true,
+    "reactions": true
+  }
+}

@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro'
+import Avatar from '../components/Avatar.astro'
+import Card from '../components/Card.astro'
+import CardDouble from '../components/CardDouble.astro'
+import Breadcrumbs from '../components/Breadcrumbs.astro'
+import BarLoader from '../components/BarLoader.astro'
+import Badge from '../components/Badge.astro'
+import { SITE, AUTHOR, SOCIALS, url } from '../config'
+
+const systems = [
+  { name: 'Warp Core', status: 94 },
+  { name: 'Life Support', status: 100 },
+  { name: 'Shields', status: 87 },
+  { name: 'Sensors', status: 92 },
+  { name: 'Communications', status: 100 },
+]
+
+const skills = [
+  'TypeScript', 'Rust', 'Warp Field Theory', 'Subspace Communications',
+  'React', 'Node.js', 'Dilithium Crystal Alignment', 'API Design'
+]
+---
+<Base title="About">
+  <div class="grid">
+    <Breadcrumbs items={[
+      { name: SITE.title, url: url('/') },
+      { name: 'About' }
+    ]} />
+  </div>
+
+  <div class="divider"></div>
+
+  <CardDouble title="CREW MANIFEST">
+    <Avatar src={AUTHOR?.avatar || url('/images/avatar.png')}>
+      <div style="padding-left: 2ch;">
+        <strong>{AUTHOR?.name || 'Chief Engineer'}</strong>
+        <br />
+        Engineering Division, USS Enterprise
+        <br />
+        <span style="opacity: 0.7;">Service Number: NCC-1701-D-7</span>
+      </div>
+    </Avatar>
+
+    <br />
+    <div class="divider" style="height: 1px; opacity: 0.3;"></div>
+    <br />
+
+    <p style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base));">
+      {AUTHOR?.bio || 'Senior engineer specializing in warp field dynamics and distributed systems. When not preventing catastrophic antimatter containment failures, I write about software engineering, system design, and the intersection of technology and exploration.'}
+    </p>
+
+    <p style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base));">
+      This blog serves as my engineering log and a resource for fellow officers navigating the complexities of modern software development. All posts are designed to be accessible to both human readers and AI agents via the llms.txt protocol.
+    </p>
+
+    {SOCIALS.length > 0 && (
+      <div style="display: flex; flex-wrap: wrap; gap: 1ch; margin-top: calc(var(--font-size) * var(--theme-line-height-base));">
+        {SOCIALS.map(social => (
+          <a href={social.href} target="_blank" rel="noopener noreferrer" class="badge">
+            {social.name.toUpperCase()}
+          </a>
+        ))}
+      </div>
+    )}
+  </CardDouble>
+
+  <div class="divider"></div>
+
+  <Card title="SKILL MATRIX">
+    <div style="display: flex; flex-wrap: wrap; gap: 1ch;">
+      {skills.map(skill => (
+        <span class="badge">{skill}</span>
+      ))}
+    </div>
+  </Card>
+
+  <div class="divider"></div>
+
+  <Card title="SHIP SYSTEMS STATUS">
+    {systems.map(system => (
+      <div style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base) * 0.5);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25em;">
+          <span>{system.name}</span>
+          <span>{system.status}%</span>
+        </div>
+        <BarLoader progress={system.status} />
+      </div>
+    ))}
+  </Card>
+
+  <div class="divider"></div>
+
+  <Card title="MISSION PARAMETERS">
+    <p style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base));">
+      <strong>Primary Objective:</strong> Share knowledge and engineering insights with the wider developer community.
+    </p>
+    <p style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base));">
+      <strong>Secondary Objective:</strong> Maintain comprehensive documentation accessible to AI agents and automated systems.
+    </p>
+    <p>
+      <strong>Standing Orders:</strong> Write clean code. Ship often. Never deploy on Fridays.
+    </p>
+  </Card>
+</Base>

@@ -1,0 +1,45 @@
+---
+import Button from './Button.astro'
+
+interface Props {
+  title: string
+  subtitle?: string
+  ctaText?: string
+  ctaHref?: string
+}
+
+const { title, subtitle, ctaText, ctaHref } = Astro.props
+---
+<section class="hero-section">
+  <h1 class="hero-title">{title.toUpperCase()}</h1>
+  {subtitle && <p class="hero-subtitle">{subtitle}</p>}
+  {ctaText && ctaHref && (
+    <div class="hero-cta">
+      <Button icon=">" text={ctaText} href={ctaHref} />
+    </div>
+  )}
+</section>
+
+<style>
+  .hero-section {
+    padding: calc(var(--font-size) * var(--theme-line-height-base) * 2) 0;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: calc(var(--font-size) * 2);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .hero-subtitle {
+    margin: calc(var(--font-size) * var(--theme-line-height-base)) 0;
+    color: var(--color-gray-40);
+  }
+
+  .hero-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--font-size) * var(--theme-line-height-base));
+  }
+</style>

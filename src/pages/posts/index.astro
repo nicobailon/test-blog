@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import PostCard from '../../components/PostCard.astro'
+
+const posts = await getCollection('posts', ({ data }) => !data.draft)
+const sortedPosts = posts.sort((a, b) => b.data.pubDatetime.valueOf() - a.data.pubDatetime.valueOf())
+---
+<Base title="All Posts">
+  <h1 class="text-2xl font-semibold mb-4">All Posts</h1>
+  <hr class="border-skin-border mb-4" />
+
+  <ul class="list-none p-0">
+    {sortedPosts.map(post => (
+      <PostCard
+        slug={post.slug}
+        title={post.data.title}
+        pubDatetime={post.data.pubDatetime}
+        description={post.data.description}
+        body={post.body || ''}
+      />
+    ))}
+  </ul>
+
+  {sortedPosts.length === 0 && (
+    <p class="opacity-70">No posts yet.</p>
+  )}
+</Base>

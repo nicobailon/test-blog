@@ -1,0 +1,12 @@
+---
+interface Props {
+  icon?: string
+  highlight?: boolean
+}
+
+const { icon, highlight = false } = Astro.props
+---
+<div class:list={['message', highlight && 'message--highlight']}>
+  {icon && <span>{icon}</span>}
+  <div><slot /></div>
+</div>

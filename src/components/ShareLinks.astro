@@ -1,0 +1,71 @@
+---
+interface Props {
+  title: string
+  url: string
+}
+
+const { title, url } = Astro.props
+const encodedTitle = encodeURIComponent(title)
+const encodedUrl = encodeURIComponent(url)
+---
+<div class="share-links">
+  <span class="badge badge--muted">SHARE</span>
+  <a
+    href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="badge"
+    title="Share on X"
+  >X</a>
+  <a
+    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="badge"
+    title="Share on LinkedIn"
+  >LINKEDIN</a>
+  <a
+    href={`https://bsky.app/intent/compose?text=${encodedTitle}%20${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="badge"
+    title="Share on Bluesky"
+  >BLUESKY</a>
+  <button
+    id="copy-link"
+    class="badge"
+    title="Copy link"
+    data-url={url}
+  >COPY LINK</button>
+</div>
+
+<style>
+  .share-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1ch;
+    align-items: center;
+  }
+
+  .share-links button {
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--font-size);
+    border: none;
+  }
+</style>
+
+<script>
+  document.getElementById('copy-link')?.addEventListener('click', async (e) => {
+    const button = e.currentTarget as HTMLButtonElement
+    const url = button.dataset.url
+    if (url) {
+      await navigator.clipboard.writeText(url)
+      const originalText = button.textContent
+      button.textContent = 'COPIED!'
+      setTimeout(() => {
+        button.textContent = originalText
+      }, 2000)
+    }
+  })
+</script>

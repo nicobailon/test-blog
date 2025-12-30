@@ -1,0 +1,20 @@
+---
+interface Props {
+  icon?: string
+  text: string
+  href?: string
+  type?: 'button' | 'submit' | 'reset'
+  variant?: 'primary' | 'secondary'
+}
+
+const { icon = '>', text, href, type = 'button', variant = 'primary' } = Astro.props
+const Tag = href ? 'a' : 'button'
+---
+<Tag
+  class:list={['button', variant === 'secondary' && 'button--secondary']}
+  href={href}
+  type={!href ? type : undefined}
+>
+  <figure class="button-icon">{icon}</figure>
+  <span class="button-text">{text}</span>
+</Tag>

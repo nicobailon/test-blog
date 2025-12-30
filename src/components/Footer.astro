@@ -1,0 +1,20 @@
+---
+import Icon from './Icon.astro'
+import { SITE, SOCIALS, FEATURES, url } from '../config'
+---
+<footer class="mt-auto w-full" style="background: var(--theme-border);">
+  <div class="max-w-[80ch] mx-auto flex items-center justify-between px-[2ch]" style="height: calc(var(--font-size) * var(--theme-line-height-base) * 2);">
+    <div class="flex items-center">
+      <a href={url('/llms.txt')} class="px-[1ch]">LLMS.TXT</a>
+      <a href={url('/api/posts.json')} class="px-[1ch]">API</a>
+      {FEATURES.rss && <a href={url('/rss.xml')} class="px-[1ch]">RSS</a>}
+    </div>
+    <div class="flex items-center">
+      {SOCIALS.map(social => (
+        <a href={social.href} target="_blank" rel="noopener noreferrer" class="px-[1ch]" title={social.name}>
+          {social.name.toUpperCase()}
+        </a>
+      ))}
+    </div>
+  </div>
+</footer>

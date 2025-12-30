@@ -1,0 +1,16 @@
+---
+interface Props {
+  code: string
+}
+
+const { code } = Astro.props
+const lines = code.split('\n')
+---
+<pre class="code-block">
+  {lines.map((line, index) => (
+    <div class="code-block-line">
+      <span class="code-block-number">{String(index + 1).padStart(3, ' ')}</span>
+      <span class="code-block-content">{line}</span>
+    </div>
+  ))}
+</pre>

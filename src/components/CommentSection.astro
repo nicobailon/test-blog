@@ -1,0 +1,279 @@
+---
+import { API_BASE } from '../config'
+
+interface Props {
+  blogName: string
+  postSlug: string
+  turnstileSiteKey?: string
+}
+
+const { blogName, postSlug, turnstileSiteKey } = Astro.props
+---
+
+<section id="comments" class="comment-section" data-blog={blogName} data-slug={postSlug} data-api={API_BASE}>
+  <h2>COMMENTS</h2>
+  <div class="comment-list"></div>
+  <div class="comment-form-container">
+    <form class="comment-form">
+      <input type="text" name="website_url" aria-hidden="true" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+      <div class="form-field">
+        <label class="form-label">NAME *</label>
+        <input type="text" name="name" required class="form-input">
+      </div>
+      <div class="form-field">
+        <label class="form-label">EMAIL</label>
+        <input type="email" name="email" class="form-input">
+      </div>
+      <div class="form-field">
+        <label class="form-label">COMMENT *</label>
+        <textarea name="content" required rows="4" class="form-textarea"></textarea>
+      </div>
+      {turnstileSiteKey && (
+        <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+      )}
+      <button type="submit" class="button">
+        <figure class="button-icon">&gt;</figure>
+        <span class="button-text">POST COMMENT</span>
+      </button>
+      <div class="form-status"></div>
+    </form>
+  </div>
+</section>
+
+{turnstileSiteKey && (
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+)}
+
+<script>
+  const section = document.getElementById('comments')
+  if (section) {
+    const blogName = section.dataset.blog
+    const postSlug = section.dataset.slug
+    const API = section.dataset.api || ''
+    
+    let loaded = false
+    
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !loaded) {
+        loaded = true
+        loadComments()
+      }
+    }, { rootMargin: '200px' })
+    
+    observer.observe(section)
+    
+    async function loadComments() {
+      try {
+        const res = await fetch(`${API}/blogs/${blogName}/posts/${postSlug}/comments`)
+        if (!res.ok) throw new Error('Failed to load comments')
+        const data = await res.json()
+        renderComments(data.comments || [])
+      } catch (e) {
+        console.error('Failed to load comments:', e)
+        const list = section.querySelector('.comment-list')
+        if (list) list.innerHTML = '<p class="comment-error">Failed to load comments</p>'
+      }
+    }
+    
+    function renderComments(comments: Array<{author_name: string, author_url?: string, content: string, created_at: string}>) {
+      const list = section.querySelector('.comment-list')
+      if (!list) return
+      
+      if (comments.length === 0) {
+        list.innerHTML = '<p class="no-comments">No comments yet. Be the first!</p>'
+        return
+      }
+      
+      list.innerHTML = comments.map(c => `
+        <div class="comment">
+          <div class="comment-header">
+            ${c.author_url 
+              ? `<a href="${escapeHtml(c.author_url)}" class="comment-author" target="_blank" rel="nofollow noopener ugc">${escapeHtml(c.author_name)}</a>`
+              : `<strong class="comment-author">${escapeHtml(c.author_name)}</strong>`
+            }
+            <span class="comment-date">${formatDate(c.created_at)}</span>
+          </div>
+          <div class="comment-body">${escapeHtml(c.content)}</div>
+        </div>
+      `).join('')
+    }
+    
+    const form = section.querySelector('.comment-form') as HTMLFormElement | null
+    const status = section.querySelector('.form-status') as HTMLElement | null
+    
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const formData = new FormData(form)
+      
+      if (formData.get('website_url')) return
+      
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement
+      submitBtn.disabled = true
+      if (status) status.textContent = 'Posting...'
+      
+      try {
+        const body: Record<string, string | undefined> = {
+          name: formData.get('name') as string,
+          content: formData.get('content') as string
+        }
+        const email = formData.get('email') as string
+        if (email) body.email = email
+        
+        const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement | null
+        if (turnstileInput?.value) {
+          body.turnstile_token = turnstileInput.value
+        }
+        
+        const res = await fetch(`${API}/blogs/${blogName}/posts/${postSlug}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+        
+        if (res.ok) {
+          form.reset()
+          if (typeof turnstile !== 'undefined') {
+            turnstile.reset()
+          }
+          if (status) status.textContent = 'Comment posted!'
+          setTimeout(() => { if (status) status.textContent = '' }, 3000)
+          loadComments()
+        } else {
+          const err = await res.json()
+          if (status) status.textContent = err.error || 'Failed to post comment'
+        }
+      } catch (e) {
+        console.error('Failed to post comment:', e)
+        if (status) status.textContent = 'Network error. Try again.'
+      } finally {
+        submitBtn.disabled = false
+      }
+    })
+    
+    function escapeHtml(str: string): string {
+      const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+      return str.replace(/[&<>"']/g, c => map[c] || c)
+    }
+    
+    function formatDate(iso: string): string {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    }
+  }
+</script>
+
+<style>
+  .comment-section {
+    margin-top: var(--spacing-xl);
+  }
+  
+  .comment-section h2 {
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-text-secondary);
+  }
+  
+  .comment-list {
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  .comment {
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .comment:last-child {
+    border-bottom: none;
+  }
+  
+  .comment-header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .comment-author {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  
+  a.comment-author {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  
+  a.comment-author:hover {
+    color: var(--color-accent);
+  }
+  
+  .comment-date {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+  
+  .comment-body {
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  
+  .no-comments,
+  .comment-error {
+    color: var(--color-text-secondary);
+    font-style: italic;
+  }
+  
+  .comment-error {
+    color: var(--color-error, #e53e3e);
+  }
+  
+  .comment-form-container {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--spacing-lg);
+  }
+  
+  .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: 32rem;
+  }
+  
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  
+  .form-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+  }
+  
+  .form-input,
+  .form-textarea {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  
+  .form-input:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .form-status {
+    font-size: 0.875rem;
+    min-height: 1.25rem;
+  }
+</style>

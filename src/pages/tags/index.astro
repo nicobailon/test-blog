@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import Tag from '../../components/Tag.astro'
+import Breadcrumb from '../../components/Breadcrumb.astro'
+
+const posts = await getCollection('posts', ({ data }) => !data.draft)
+const tagCounts: Record<string, number> = {}
+
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1
+  }
+}
+
+const sortedTags = Object.entries(tagCounts)
+  .sort((a, b) => b[1] - a[1])
+---
+<Base title="Tags">
+  <Breadcrumb items={[{ label: 'Tags' }]} />
+
+  <h1 class="text-3xl font-bold mt-8 mb-8">Tags</h1>
+
+  <div class="flex flex-wrap gap-3">
+    {sortedTags.map(([tag, count]) => (
+      <Tag name={tag} count={count} />
+    ))}
+  </div>
+
+  {sortedTags.length === 0 && (
+    <p class="text-skin-muted">No tags yet.</p>
+  )}
+</Base>

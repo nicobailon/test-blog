@@ -1,0 +1,29 @@
+---
+interface Props {
+  src?: string
+  href?: string
+  target?: string
+}
+
+const { src, href, target } = Astro.props
+const hasChildren = Astro.slots.has('default')
+const Tag = href ? 'a' : 'figure'
+---
+{hasChildren ? (
+  <div class="avatar-parent">
+    <Tag
+      class={src ? 'avatar-root' : 'avatar-placeholder'}
+      style={src ? `background-image: url(${src})` : undefined}
+      href={href}
+      target={target}
+    />
+    <span class="avatar-right"><slot /></span>
+  </div>
+) : (
+  <Tag
+    class={src ? 'avatar-root' : 'avatar-placeholder'}
+    style={src ? `background-image: url(${src})` : undefined}
+    href={href}
+    target={target}
+  />
+)}

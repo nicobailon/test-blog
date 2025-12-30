@@ -1,0 +1,22 @@
+---
+import ThemeToggle from './ThemeToggle.astro'
+import { SITE, FEATURES, url } from '../config'
+
+const { pathname } = Astro.url
+const currentPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname
+const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + '/')
+---
+<header style="background: var(--theme-border);">
+  <nav class="max-w-[80ch] mx-auto flex items-center justify-between px-[2ch]" style="height: calc(var(--font-size) * var(--theme-line-height-base) * 2);">
+    <a href={url('/')} class="px-[1ch]">{SITE.title.toUpperCase()}</a>
+    <div class="flex items-center">
+      <a href={url('/posts')} class:list={["px-[1ch]", { "active-nav": isActive(url('/posts')) }]}>POSTS</a>
+      <a href={url('/about')} class:list={["px-[1ch]", { "active-nav": isActive(url('/about')) }]}>ABOUT</a>
+      <a href={url('/contact')} class:list={["px-[1ch]", { "active-nav": isActive(url('/contact')) }]}>CONTACT</a>
+      {FEATURES.search && (
+        <a href={url('/search')} class="px-[1ch]">SEARCH</a>
+      )}
+      <ThemeToggle />
+    </div>
+  </nav>
+</header>

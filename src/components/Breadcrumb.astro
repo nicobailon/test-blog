@@ -1,0 +1,30 @@
+---
+import { url } from '../config'
+
+interface Props {
+  items: { label: string; href?: string }[]
+}
+
+const { items } = Astro.props
+---
+<nav aria-label="Breadcrumb" class="text-sm text-skin-muted">
+  <ol class="flex items-center gap-2">
+    <li>
+      <a href={url('/')} class="hover:text-accent transition-colors">Home</a>
+    </li>
+    {items.map((item, index) => (
+      <>
+        <li class="select-none">/</li>
+        <li>
+          {item.href ? (
+            <a href={item.href} class="hover:text-accent transition-colors">
+              {item.label}
+            </a>
+          ) : (
+            <span class="text-skin-text">{item.label}</span>
+          )}
+        </li>
+      </>
+    ))}
+  </ol>
+</nav>

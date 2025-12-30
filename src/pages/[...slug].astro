@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content'
+import PostLayout from '../layouts/PostLayout.astro'
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts', ({ data }) => !data.draft)
+  const sortedPosts = allPosts.sort((a, b) => b.data.pubDatetime.valueOf() - a.data.pubDatetime.valueOf())
+  
+  return sortedPosts.map((post, index) => {
+    const postTags = post.data.tags || []
+    const relatedPosts = sortedPosts
+      .filter(p => p.slug !== post.slug && p.data.tags?.some(t => postTags.includes(t)))
+      .sort((a, b) => {
+        const aShared = a.data.tags?.filter(t => postTags.includes(t)).length || 0
+        const bShared = b.data.tags?.filter(t => postTags.includes(t)).length || 0
+        return bShared - aShared
+      })
+      .slice(0, 3)
+      .map(p => ({ slug: p.slug, title: p.data.title }))
+
+    return {
+      params: { slug: post.slug },
+      props: { 
+        post,
+        relatedPosts,
+        prevPost: index > 0 ? { slug: sortedPosts[index - 1].slug, title: sortedPosts[index - 1].data.title } : null,
+        nextPost: index < sortedPosts.length - 1 ? { slug: sortedPosts[index + 1].slug, title: sortedPosts[index + 1].data.title } : null
+      }
+    }
+  })
+}
+
+const { post, relatedPosts, prevPost, nextPost } = Astro.props
+const { Content, headings } = await post.render()
+
+function wantsMarkdown(accept: string): boolean {
+  if (!accept.includes('text/markdown')) return false
+  const types = accept.split(',').map(t => {
+    const [type, ...params] = t.trim().split(';')
+    const q = params.find(p => p.trim().startsWith('q='))
+    return { type: type.trim(), q: q ? parseFloat(q.split('=')[1]) : 1.0 }
+  })
+  const md = types.find(t => t.type === 'text/markdown')?.q || 0
+  const html = types.find(t => t.type === 'text/html')?.q || 0
+  return md > 0 && md >= html
+}
+
+const accept = Astro.request.headers.get('Accept') || ''
+if (wantsMarkdown(accept)) {
+  return new Response(post.body || '', {
+    headers: { 'Content-Type': 'text/markdown; charset=utf-8', 'Vary': 'Accept' }
+  })
+}
+---
+<PostLayout
+  slug={post.slug}
+  title={post.data.title}
+  pubDatetime={post.data.pubDatetime}
+  modDatetime={post.data.modDatetime}
+  description={post.data.description}
+  tags={post.data.tags}
+  body={post.body || ''}
+  headings={headings}
+  heroImage={post.data.heroImage}
+  heroAlt={post.data.heroAlt}
+  relatedPosts={relatedPosts}
+  prevPost={prevPost}
+  nextPost={nextPost}
+>
+  <Content />
+</PostLayout>

@@ -1,0 +1,142 @@
+---
+import Base from './Base.astro'
+import Avatar from '../components/Avatar.astro'
+import Breadcrumbs from '../components/Breadcrumbs.astro'
+import Divider from '../components/Divider.astro'
+import Tag from '../components/Tag.astro'
+import RelatedPosts from '../components/RelatedPosts.astro'
+import NewsletterForm from '../components/NewsletterForm.astro'
+import ShareLinks from '../components/ShareLinks.astro'
+import CommentSection from '../components/CommentSection.astro'
+import ReactionBar from '../components/ReactionBar.astro'
+import { getReadingTime } from '../lib/utils'
+import { url, SITE, FEATURES, NEWSLETTER, AUTHOR, TURNSTILE } from '../config'
+
+interface Props {
+  slug: string
+  title: string
+  pubDatetime: Date
+  modDatetime?: Date
+  description?: string
+  tags: string[]
+  body: string
+  headings: { depth: number; slug: string; text: string }[]
+  heroImage?: string
+  heroAlt?: string
+  relatedPosts?: { slug: string; title: string }[]
+  prevPost?: { slug: string; title: string }
+  nextPost?: { slug: string; title: string }
+}
+
+const { slug, title, pubDatetime, modDatetime, description, tags, body, headings, heroImage, heroAlt, relatedPosts = [], prevPost, nextPost } = Astro.props
+const readingTime = getReadingTime(body)
+const postUrl = new URL(Astro.url.pathname, Astro.site).toString()
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
+}
+---
+<Base title={title} description={description}>
+  <article class="card-double">
+    <header class="card-double-header">
+      <div class="card-double-header-left"></div>
+      <span class="card-double-title">POST</span>
+      <div class="card-double-header-right"></div>
+    </header>
+    <section class="card-double-body">
+      <Breadcrumbs items={[
+        { name: SITE.title, url: url('/') },
+        { name: 'Posts', url: url('/posts') },
+        { name: title }
+      ]} />
+      <br /><br />
+      <Avatar src={AUTHOR?.avatar}>
+        <div style="padding-left: 2ch;">
+          <strong>{AUTHOR?.name || 'Anonymous'}</strong>
+          <br />
+          {formatDate(pubDatetime)} • {readingTime}
+        </div>
+      </Avatar>
+      <br />
+      <Divider type="double" />
+      <br /><br /><br /><br />
+
+      {heroImage && (
+        <>
+          <img src={heroImage.startsWith('/') ? url(heroImage) : heroImage} alt={heroAlt || title} style="width: 100%; height: auto; margin-bottom: calc(var(--font-size) * var(--theme-line-height-base) * 2);" />
+        </>
+      )}
+
+      <div class="prose">
+        <slot />
+      </div>
+
+      {tags.length > 0 && (
+        <>
+          <br />
+          <Divider />
+          <br />
+          <div style="display: flex; flex-wrap: wrap; gap: 1ch;">
+            {tags.map(tag => <Tag name={tag} />)}
+          </div>
+        </>
+      )}
+
+      {FEATURES.reactions && SITE.name && (
+        <ReactionBar blogName={SITE.name} postSlug={slug} />
+      )}
+
+      {FEATURES.comments && SITE.name && (
+        <CommentSection 
+          blogName={SITE.name} 
+          postSlug={slug}
+          turnstileSiteKey={TURNSTILE.enabled ? TURNSTILE.siteKey : undefined}
+        />
+      )}
+    </section>
+  </article>
+
+  {FEATURES.shareLinks && (
+    <>
+      <div class="divider"></div>
+      <div class="grid">
+        <ShareLinks title={title} url={postUrl} />
+      </div>
+    </>
+  )}
+
+  {FEATURES.relatedPosts && relatedPosts.length > 0 && (
+    <>
+      <div class="divider"></div>
+      <div class="grid">
+        <RelatedPosts posts={relatedPosts} />
+      </div>
+    </>
+  )}
+
+  <div class="divider"></div>
+
+  <div class="grid">
+    {prevPost && (
+      <a href={url(`/${prevPost.slug}`)} class="action-list-item">
+        <figure class="action-list-icon">⭠</figure>
+        <span class="action-list-text">PREV: {prevPost.title.toUpperCase()}</span>
+      </a>
+    )}
+    {nextPost && (
+      <a href={url(`/${nextPost.slug}`)} class="action-list-item">
+        <figure class="action-list-icon">⭢</figure>
+        <span class="action-list-text">NEXT: {nextPost.title.toUpperCase()}</span>
+      </a>
+    )}
+  </div>
+
+  {FEATURES.newsletter && NEWSLETTER.enabled && (
+    <>
+      <div class="divider"></div>
+      <div class="grid">
+        <NewsletterForm />
+      </div>
+    </>
+  )}
+</Base>

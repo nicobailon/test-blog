@@ -1,0 +1,62 @@
+---
+interface Props {
+  name: string
+  type?: 'text' | 'email' | 'password' | 'search'
+  placeholder?: string
+  required?: boolean
+  showCaret?: boolean
+}
+
+const { name, type = 'text', placeholder, required = false, showCaret = false } = Astro.props
+---
+<div class="input-wrapper">
+  <input
+    type={type}
+    name={name}
+    placeholder={placeholder}
+    required={required}
+    class="input"
+  />
+  {showCaret && <span class="input-caret"></span>}
+</div>
+
+<style>
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--theme-border-subdued);
+    width: 100%;
+  }
+
+  .input {
+    background: transparent;
+    border: none;
+    color: var(--theme-text);
+    font-family: inherit;
+    font-size: var(--font-size);
+    line-height: calc(var(--font-size) * var(--theme-line-height-base));
+    padding: 0 1ch;
+    width: 100%;
+  }
+
+  .input:focus {
+    outline: none;
+  }
+
+  .input::placeholder {
+    color: var(--color-gray-40);
+  }
+
+  .input-caret {
+    width: 1ch;
+    height: calc(var(--font-size) * var(--theme-line-height-base) * 0.8);
+    background: var(--theme-text);
+    animation: blink 1s step-end infinite;
+    margin-right: 1ch;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+import Button from './Button.astro'
+import Input from './Input.astro'
+
+interface Props {
+  action?: string
+  placeholder?: string
+  buttonText?: string
+}
+
+const {
+  action = '/subscribe',
+  placeholder = 'your@email.com',
+  buttonText = 'SUBSCRIBE'
+} = Astro.props
+---
+<form action={action} method="POST" class="newsletter-form">
+  <Input name="email" type="email" placeholder={placeholder} required showCaret />
+  <Button icon=">" text={buttonText} type="submit" />
+</form>
+
+<style>
+  .newsletter-form {
+    display: flex;
+    gap: 1ch;
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../layouts/Base.astro'
+import PostCard from '../components/PostCard.astro'
+import HeroSection from '../components/HeroSection.astro'
+import ProfileSection from '../components/ProfileSection.astro'
+import NewsletterForm from '../components/NewsletterForm.astro'
+import { SITE, SOCIALS, HERO, FEATURES, NEWSLETTER, AUTHOR, url } from '../config'
+
+const posts = await getCollection('posts', ({ data }) => !data.draft)
+const sortedPosts = posts.sort((a, b) => b.data.pubDatetime.valueOf() - a.data.pubDatetime.valueOf())
+const featuredPosts = sortedPosts.filter(p => p.data.featured)
+const nonFeaturedPosts = sortedPosts.filter(p => !p.data.featured)
+const recentPosts = nonFeaturedPosts.length > 0 ? nonFeaturedPosts.slice(0, 5) : sortedPosts.slice(0, 5)
+---
+<Base>
+  {FEATURES.hero && (
+    <>
+      <HeroSection title={HERO.title} subtitle={HERO.subtitle} ctaText="VIEW ALL POSTS" ctaHref={url('/posts')} />
+      <div class="divider"></div>
+    </>
+  )}
+
+  <div class="grid">
+    <ProfileSection name={AUTHOR.name} bio={AUTHOR.bio} avatarSrc={AUTHOR.avatar} />
+  </div>
+
+  <div class="divider"></div>
+
+  {featuredPosts.length > 0 && (
+    <>
+      <div class="grid">
+        <h2 style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base));">FEATURED</h2>
+        {featuredPosts.map(post => (
+          <PostCard
+            slug={post.slug}
+            title={post.data.title}
+            pubDatetime={post.data.pubDatetime}
+            description={post.data.description}
+            body={post.body || ''}
+          />
+        ))}
+      </div>
+      <div class="divider"></div>
+    </>
+  )}
+
+  <div class="grid">
+    <h2 style="margin-bottom: calc(var(--font-size) * var(--theme-line-height-base));">RECENT POSTS</h2>
+    {recentPosts.map(post => (
+      <PostCard
+        slug={post.slug}
+        title={post.data.title}
+        pubDatetime={post.data.pubDatetime}
+        description={post.data.description}
+        body={post.body || ''}
+      />
+    ))}
+    <a href={url('/posts')} class="action-list-item" style="margin-top: calc(var(--font-size) * var(--theme-line-height-base));">
+      <figure class="action-list-icon">⭢</figure>
+      <span class="action-list-text">VIEW ALL POSTS</span>
+    </a>
+  </div>
+
+  {FEATURES.newsletter && NEWSLETTER.enabled && (
+    <>
+      <div class="divider"></div>
+      <div class="grid">
+        <div class="card-double">
+          <header class="card-double-header">
+            <div class="card-double-header-left"></div>
+            <h2 class="card-double-title">NEWSLETTER</h2>
+            <div class="card-double-header-right"></div>
+          </header>
+          <section class="card-double-body">
+            <p>Subscribe to get new posts delivered to your inbox.</p>
+          </section>
+          <div class="card-double-divider"></div>
+          <section class="card-double-footer">
+            <NewsletterForm action={NEWSLETTER.action} placeholder={NEWSLETTER.placeholder} />
+          </section>
+        </div>
+      </div>
+    </>
+  )}
+</Base>

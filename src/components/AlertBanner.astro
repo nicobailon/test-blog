@@ -1,0 +1,20 @@
+---
+interface Props {
+  icon?: string
+  text: string
+  href?: string
+}
+
+const { icon = '!', text, href } = Astro.props
+---
+{href ? (
+  <a href={href} class="alert-banner">
+    <span>{icon}</span>
+    <span>{text}</span>
+  </a>
+) : (
+  <div class="alert-banner">
+    <span>{icon}</span>
+    <span>{text}</span>
+  </div>
+)}

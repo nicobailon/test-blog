@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro'
+import ContactForm from '../components/ContactForm.astro'
+import Breadcrumbs from '../components/Breadcrumbs.astro'
+import { SITE, AUTHOR, url } from '../config'
+---
+<Base title="Contact">
+  <div class="grid">
+    <Breadcrumbs items={[
+      { name: SITE.title, url: url('/') },
+      { name: 'Contact' }
+    ]} />
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid">
+    {AUTHOR?.email ? (
+      <ContactForm />
+    ) : (
+      <div class="card">
+        <header class="card-header">
+          <div class="card-header-left"></div>
+          <span class="card-title">CONTACT</span>
+          <div class="card-header-right"></div>
+        </header>
+        <section class="card-body">
+          <p>Contact form not configured. Add an email to your blog config to enable.</p>
+        </section>
+      </div>
+    )}
+  </div>
+</Base>

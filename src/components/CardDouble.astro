@@ -1,0 +1,30 @@
+---
+interface Props {
+  title?: string
+}
+
+const { title } = Astro.props
+const hasNamedSlots = Astro.slots.has('top') || Astro.slots.has('bottom')
+---
+<div class="card-double">
+  <header class="card-double-header">
+    <div class="card-double-header-left"></div>
+    {title && <h2 class="card-double-title">{title.toUpperCase()}</h2>}
+    <div class="card-double-header-right"></div>
+  </header>
+  {hasNamedSlots ? (
+    <>
+      <section class="card-double-body">
+        <slot name="top" />
+      </section>
+      <div class="card-double-divider"></div>
+      <section class="card-double-footer">
+        <slot name="bottom" />
+      </section>
+    </>
+  ) : (
+    <section class="card-double-body" style="padding-bottom: calc(var(--font-size) * var(--theme-line-height-base));">
+      <slot />
+    </section>
+  )}
+</div>

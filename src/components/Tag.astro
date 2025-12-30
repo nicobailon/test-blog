@@ -1,0 +1,14 @@
+---
+import { url } from '../config'
+
+interface Props {
+  name: string
+  count?: number
+}
+
+const { name, count } = Astro.props
+---
+<a href={url(`/tags/${name}`)} class="badge">
+  <span>#{name}</span>
+  {count !== undefined && <span class="badge--muted" style="margin-left: 0.5ch;">({count})</span>}
+</a>

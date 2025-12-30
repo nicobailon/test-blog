@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro'
+import Breadcrumb from '../components/Breadcrumb.astro'
+import Icon from '../components/Icon.astro'
+import { BASE } from '../config'
+---
+<Base title="Search">
+  <Breadcrumb items={[{ label: 'Search' }]} />
+  <script is:inline define:vars={{ baseUrl: BASE }}></script>
+
+  <h1 class="text-3xl font-bold mt-8 mb-8">Search</h1>
+
+  <div class="relative mb-8">
+    <Icon name="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-skin-muted" />
+    <input
+      id="search-input"
+      type="text"
+      placeholder="Search posts..."
+      class="w-full pl-12 pr-4 py-3 bg-skin-base border border-skin-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+    />
+  </div>
+
+  <div id="search-results" class="space-y-6"></div>
+  <p id="no-results" class="text-skin-muted hidden">No results found.</p>
+
+  <script>
+    interface Post {
+      slug: string
+      title: string
+      description?: string
+      tags: string[]
+      pubDatetime: string
+    }
+
+    let posts: Post[] = []
+
+    async function loadPosts() {
+      const response = await fetch(baseUrl + '/api/posts.json?include_body=false')
+      const data = await response.json()
+      posts = data.posts
+    }
+
+    function search(query: string): Post[] {
+      const q = query.toLowerCase()
+      return posts.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q) ||
+        p.tags.some(t => t.toLowerCase().includes(q))
+      )
+    }
+
+    function renderResults(results: Post[]) {
+      const container = document.getElementById('search-results')!
+      const noResults = document.getElementById('no-results')!
+
+      if (results.length === 0) {
+        container.innerHTML = ''
+        noResults.classList.remove('hidden')
+        return
+      }
+
+      noResults.classList.add('hidden')
+      container.innerHTML = results.map(post => `
+        <article class="group">
+          <a href="${baseUrl}/${post.slug}" class="block">
+            <h3 class="font-semibold text-lg group-hover:text-accent transition-colors">
+              ${post.title}
+            </h3>
+            ${post.description ? `<p class="text-skin-muted mt-1">${post.description}</p>` : ''}
+          </a>
+        </article>
+      `).join('')
+    }
+
+    loadPosts()
+
+    document.getElementById('search-input')?.addEventListener('input', (e) => {
+      const query = (e.target as HTMLInputElement).value
+      if (query.length < 2) {
+        document.getElementById('search-results')!.innerHTML = ''
+        document.getElementById('no-results')!.classList.add('hidden')
+        return
+      }
+      renderResults(search(query))
+    })
+  </script>
+</Base>

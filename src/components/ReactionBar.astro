@@ -1,0 +1,115 @@
+---
+import { API_BASE } from '../config'
+
+interface Props {
+  blogName: string
+  postSlug: string
+}
+
+const { blogName, postSlug } = Astro.props
+const EMOJI_SET = ['👍', '❤️', '🚀', '👀', '🤔', '🎉']
+---
+
+<div class="reaction-bar" data-blog={blogName} data-slug={postSlug} data-api={API_BASE}>
+  {EMOJI_SET.map(emoji => (
+    <button class="reaction-btn" data-emoji={emoji} type="button">
+      <span class="reaction-emoji">{emoji}</span>
+      <span class="reaction-count">-</span>
+    </button>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll('.reaction-bar').forEach(bar => {
+    const blogName = (bar as HTMLElement).dataset.blog
+    const postSlug = (bar as HTMLElement).dataset.slug
+    const API = (bar as HTMLElement).dataset.api || ''
+    
+    async function loadReactions() {
+      try {
+        const res = await fetch(`${API}/blogs/${blogName}/posts/${postSlug}/reactions`)
+        if (!res.ok) return
+        const data = await res.json()
+        
+        bar.querySelectorAll('.reaction-btn').forEach(btn => {
+          const emoji = (btn as HTMLElement).dataset.emoji
+          const count = data.reactions?.[emoji as string] || 0
+          const countEl = btn.querySelector('.reaction-count')
+          if (countEl) countEl.textContent = String(count)
+          btn.classList.toggle('active', data.user_reaction === emoji)
+        })
+      } catch (e) {
+        console.error('Failed to load reactions:', e)
+      }
+    }
+    
+    bar.querySelectorAll('.reaction-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const emoji = (btn as HTMLElement).dataset.emoji
+        btn.classList.add('loading')
+        try {
+          await fetch(`${API}/blogs/${blogName}/posts/${postSlug}/reactions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ emoji })
+          })
+          await loadReactions()
+        } catch (e) {
+          console.error('Failed to toggle reaction:', e)
+        } finally {
+          btn.classList.remove('loading')
+        }
+      })
+    })
+    
+    loadReactions()
+  })
+</script>
+
+<style>
+  .reaction-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin: var(--spacing-lg) 0;
+  }
+  
+  .reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.875rem;
+  }
+  
+  .reaction-btn:hover {
+    border-color: var(--color-accent);
+    background: var(--color-bg-secondary, var(--color-bg));
+  }
+  
+  .reaction-btn.active {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+  
+  .reaction-btn.loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .reaction-emoji {
+    font-size: 1rem;
+  }
+  
+  .reaction-count {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    min-width: 1rem;
+    text-align: center;
+  }
+</style>

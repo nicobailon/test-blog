@@ -1,0 +1,17 @@
+---
+interface Props {
+  type?: 'single' | 'double' | 'gradient'
+}
+
+const { type = 'single' } = Astro.props
+---
+{type === 'double' ? (
+  <div class="divider-double">
+    <div class="divider"></div>
+    <div class="divider"></div>
+  </div>
+) : type === 'gradient' ? (
+  <div class="divider-gradient"></div>
+) : (
+  <div class="divider"></div>
+)}

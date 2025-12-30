@@ -1,0 +1,32 @@
+---
+import Avatar from './Avatar.astro'
+import { SITE, SOCIALS } from '../config'
+
+interface Props {
+  name?: string
+  bio?: string
+  avatarSrc?: string
+}
+
+const { name = SITE.author, bio, avatarSrc } = Astro.props
+---
+<Avatar src={avatarSrc}>
+  <div style="padding-left: 2ch;">
+    <strong>{name}</strong>
+    {bio && (
+      <>
+        <br />
+        <span style="opacity: 0.7;">{bio}</span>
+      </>
+    )}
+    {SOCIALS.length > 0 && (
+      <div style="display: flex; gap: 1ch; margin-top: calc(var(--font-size) * var(--theme-line-height-base) * 0.5);">
+        {SOCIALS.map(social => (
+          <a href={social.href} target="_blank" rel="noopener noreferrer" class="badge" title={social.name}>
+            {social.name.toUpperCase()}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</Avatar>
